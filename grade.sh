@@ -49,6 +49,11 @@ grep "Tests run: " $TESTS > $TESTPARSE
 egrep -o "[0-9]+" $TESTPARSE > $TESTNUMPARSE
 
 readarray -t RESULT < $TESTNUMPARSE
-echo $(($(($RUN*100-$FAILED*100))/100))
+
+RUN=${RESULT[0]}
+FAILED=${RESULT[1]}
+
+let x=$RUN*100 y=$FAILED*100 z=x-y u=z/100
+echo Score: $u
 fi
 
