@@ -17,16 +17,38 @@ echo 'Finished cloning'
 # Copy necessary files into grading-area
 cp student-submission/ListExamples.java grading-area/
 cp TestListExamples.java grading-area/
+cp -r lib grading-area
+cd grading-area
 
 # Compile and check for compiler errors
-COMPILERERRORTXT="grading-area/compile-error.txt"
-javac -cp "$CPATH" grading-area/*.java 2> $COMPILERERRORTXT 
+COMPILERERRORTXT="compile-error.txt"
+javac -cp "$CPATH" *.java 2> $COMPILERERRORTXT 
 if [[ $? -eq "1" ]]
 then
     printf "Compiler Error: \n $(<$COMPILERERRORTXT)"
+    exit
 else
     echo Compile success
 fi
 
 # Run tests
-java -cp "$CPATH" grading-area/TestListExamples.java
+TESTS="test-output.txt"
+TESTPARSE="test-parse.txt"
+TESTNUMPARSE="test-ran-failed.txt"
+java -cp "$CPATH" org.junit.runner.JUnitCore TestListExamples > $TESTS
+
+VALID="valid.txt"
+egrep -o "OK \(" $TESTS > $VALID
+
+if [[ -s $VALID ]]
+then
+    echo All tests passed.
+else
+# Runs if there are failed tests
+grep "Tests run: " $TESTS > $TESTPARSE
+egrep -o "[0-9]+" $TESTPARSE > $TESTNUMPARSE
+
+readarray -t RESULT < $TESTNUMPARSE
+echo $(($(($RUN*100-$FAILED*100))/100))
+fi
+
