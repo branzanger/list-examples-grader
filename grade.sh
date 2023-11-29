@@ -14,6 +14,14 @@ echo 'Finished cloning'
 # Then, add here code to compile and run, and do any post-processing of the
 # tests
 
+# Test for File existence and correct name
+if [[ ! -f student-submission/ListExamples.java ]]
+then
+    echo ListExamples.java does not exist
+    echo Please make sure ListExamples.java is nammed correctly and is in the correct directory
+    exit
+fi
+
 # Copy necessary files into grading-area
 cp student-submission/ListExamples.java grading-area/
 cp TestListExamples.java grading-area/
@@ -25,7 +33,8 @@ COMPILERERRORTXT="compile-error.txt"
 javac -cp "$CPATH" *.java 2> $COMPILERERRORTXT 
 if [[ $? -eq "1" ]]
 then
-    printf "Compiler Error: \n $(<$COMPILERERRORTXT)"
+    printf "Compiler Error: \n $(<$COMPILERERRORTXT)\n"
+    printf "Score: 0"
     exit
 else
     echo Compile success
@@ -52,8 +61,7 @@ readarray -t RESULT < $TESTNUMPARSE
 
 RUN=${RESULT[0]}
 FAILED=${RESULT[1]}
-
 let x=$RUN*100 y=$FAILED*100 z=x-y u=z/100
-echo Score: $u
+echo Score: $(($RUN-$FAILED))/$RUN
 fi
 
